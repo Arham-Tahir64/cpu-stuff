@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {"label": "M0: check environment", "type": "shell", "command": "make check", "group": "test", "problemMatcher": ["$gcc"]},
+    {"label": "M0: inspect waveform", "type": "shell", "command": "make wave", "problemMatcher": []},
+    {"label": "M0: compile RV32I ELF", "type": "shell", "command": "make smoke-elf", "group": "build", "problemMatcher": ["$gcc"]}
+  ]
+}

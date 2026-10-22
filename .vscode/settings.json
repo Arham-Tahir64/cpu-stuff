@@ -1,0 +1,7 @@
+{
+  "files.eol": "\n",
+  "files.associations": {"*.sv": "systemverilog", "*.S": "asm", "*.ld": "plaintext"},
+  "verilog.linting.linter": "verilator",
+  "verilog.linting.verilator.arguments": "--timing",
+  "python.defaultInterpreterPath": "/usr/bin/python3"
+}

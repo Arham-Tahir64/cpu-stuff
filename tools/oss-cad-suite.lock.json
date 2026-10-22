@@ -1,0 +1,9 @@
+{
+  "release": "2026-10-21",
+  "platform": "linux-x64",
+  "archive": "oss-cad-suite-linux-x64-20261021.tgz",
+  "url": "https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2026-10-21/oss-cad-suite-linux-x64-20261021.tgz",
+  "sha256": "dde9f1700dece195a98a9b15845a4f4043b2aab1dacf9be498bbad0c3be1f247",
+  "size_bytes": 748284197,
+  "metadata_source": "https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/tags/2026-10-21"
+}

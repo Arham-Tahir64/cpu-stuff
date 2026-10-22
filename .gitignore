@@ -1,0 +1,10 @@
+/build/
+/.venv/
+/tools/downloads/
+/tools/oss-cad-suite/
+__pycache__/
+*.pyc
+*.vcd
+*.fst
+core
+core.*
