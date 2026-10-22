@@ -165,4 +165,5 @@ The complete regression, harness and waveform checks are recorded in the
 change's validation results. No FPGA place/route, timing or physical execution
 is claimed. The following [register-file step](09-register-file.md) is now
 implemented and separately tested, as is the
-[immediate generator](10-immediate-generator.md). The next module is the decoder.
+[immediate generator](10-immediate-generator.md) and
+[decoder](11-instruction-decoder.md). The next module is the LSU.

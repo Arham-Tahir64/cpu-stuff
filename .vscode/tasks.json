@@ -8,6 +8,8 @@
     {"label": "M1: inspect register-file waveform", "type": "shell", "command": "make wave-regfile", "problemMatcher": []},
     {"label": "M1: test immediates", "type": "shell", "command": "make unit-immediate", "group": "test", "problemMatcher": ["$gcc"]},
     {"label": "M1: inspect immediate waveform", "type": "shell", "command": "make wave-immediate", "problemMatcher": []},
+    {"label": "M1: test decoder", "type": "shell", "command": "make unit-decoder", "group": "test", "problemMatcher": ["$gcc"]},
+    {"label": "M1: inspect decoder waveform", "type": "shell", "command": "make wave-decoder", "problemMatcher": []},
     {"label": "M0: inspect waveform", "type": "shell", "command": "make wave", "problemMatcher": []},
     {"label": "M0: compile RV32I ELF", "type": "shell", "command": "make smoke-elf", "group": "build", "problemMatcher": ["$gcc"]}
   ]
