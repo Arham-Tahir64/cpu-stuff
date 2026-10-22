@@ -8,12 +8,16 @@ RVFLAGS := -march=rv32i -mabi=ilp32 -O1 -g -ffreestanding -fno-builtin \
 RTL_SOURCES := $(shell cat rtl/files.f)
 ALU_SEED ?= 0x1badf00d
 ALU_RANDOM_PAIRS ?= 10000
+REGFILE_SEED ?= 5eed1234
+REGFILE_RANDOM_CYCLES ?= 10000
 
 .PHONY: help setup doctor check smoke-host smoke-elf smoke-rtl smoke-synth wave manifest \
-        unit unit-alu alu-vectors lint synth-alu wave-alu
+        unit unit-alu alu-vectors lint synth-alu wave-alu \
+        unit-regfile synth-regfile wave-regfile
 help:
 	@echo 'M0: make setup | doctor | check | wave | manifest'
 	@echo 'M1 ALU: make unit-alu | lint | synth-alu | wave-alu'
+	@echo 'M1 register file: make unit-regfile | synth-regfile | wave-regfile'
 	@echo 'Individual checks: smoke-host | smoke-elf | smoke-rtl | smoke-synth'
 
 setup:
@@ -22,12 +26,13 @@ setup:
 doctor:
 	bash scripts/check_tools.sh
 
-check: doctor smoke-host smoke-elf smoke-rtl smoke-synth manifest lint unit synth-alu
+check: doctor smoke-host smoke-elf smoke-rtl smoke-synth manifest lint unit synth-alu synth-regfile
 
 lint:
 	verilator --lint-only -Wall --top-module alu -f rtl/files.f
+	verilator --lint-only -Wall --top-module regfile -f rtl/files.f
 
-unit: unit-alu
+unit: unit-alu unit-regfile
 	python3 tests/unit/test_alu_harness.py
 
 alu-vectors:
@@ -52,6 +57,25 @@ synth-alu:
 wave-alu: alu-vectors build/alu/obj/alu_test
 	./build/alu/obj/alu_test +vectors=build/alu/vectors.txt +trace +limit=256
 	gtkwave build/alu/alu.vcd
+
+build/regfile/obj/regfile_test: $(RTL_SOURCES) rtl/files.f tests/unit/tb_regfile.sv Makefile
+	mkdir -p build/regfile/obj
+	verilator --binary --timing --assert --trace -Wall -j 2 \
+		--top-module tb_regfile --Mdir build/regfile/obj -o regfile_test \
+		-f rtl/files.f tests/unit/tb_regfile.sv
+
+unit-regfile: build/regfile/obj/regfile_test
+	./build/regfile/obj/regfile_test +seed=$(REGFILE_SEED) +random_cycles=$(REGFILE_RANDOM_CYCLES)
+
+synth-regfile:
+	mkdir -p build/regfile
+	yosys -Q -T -p 'read_verilog -sv $(RTL_SOURCES); hierarchy -check -top regfile; proc; select -assert-none t:$$dlatch* t:$$adff*; synth -top regfile; select -assert-count 992 t:*DFF*; check -assert; stat; write_json build/regfile/netlist.json' > build/regfile/yosys.log
+	test -s build/regfile/netlist.json
+	@echo 'PASS register-file synthesis; 992 storage bits, no latches or async reset (build/regfile/yosys.log)'
+
+wave-regfile: build/regfile/obj/regfile_test
+	./build/regfile/obj/regfile_test +seed=$(REGFILE_SEED) +sample +trace
+	gtkwave build/regfile/regfile.vcd
 
 smoke-host:
 	cmake -S tests/smoke/host -B build/host -G Ninja

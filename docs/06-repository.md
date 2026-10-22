@@ -1,7 +1,7 @@
 # Proposed complete repository structure
 
-M0 tool checks, documents, and M1's ALU/package/vector generator/testbench are
-implemented. The tree below is the target organization as milestones are
+M0 tool checks, documents, M1's ALU/package/vector generator/testbench, and the
+register file/testbench are implemented. The tree below is the target organization as milestones are
 completed, not a list of files claimed to exist today. Use `git ls-files` for
 the actual tracked contents.
 
@@ -12,7 +12,7 @@ cpu-stuff/
   .gitattributes                 # LF endings
   .gitignore
   .github/workflows/
-    m0.yml                       # implemented: environment + ALU CI
+    m0.yml                       # implemented: environment + datapath CI
     regression.yml               # later: CPU and loader regression
   .vscode/
     extensions.json
@@ -29,12 +29,13 @@ cpu-stuff/
     07-references.md
     environment-verified.md
     08-alu.md                    # implemented: ALU contract, walkthrough/results
+    09-register-file.md           # implemented: register-file contract and tests
     decisions/                   # later: rationale for architecture changes
   rtl/
     core/
       rv32_pkg.sv                # implemented: shared ALU control constants
       alu.sv                     # implemented
-      regfile.sv
+      regfile.sv                 # implemented
       immediate.sv
       decoder.sv
       lsu.sv
@@ -46,7 +47,7 @@ cpu-stuff/
       uart.sv
       gpio.sv
       soc.sv
-    files.f                      # implemented: package before ALU
+    files.f                      # implemented: ordered datapath sources
   tests/
     smoke/                       # implemented: M0 probes, not CPU modules
       host/{CMakeLists.txt,main.c}
@@ -54,7 +55,7 @@ cpu-stuff/
     unit/
       tb_alu.sv                  # implemented
       test_alu_harness.py         # implemented: assertion/reader failure checks
-      tb_regfile.sv
+      tb_regfile.sv              # implemented
       tb_immediate.sv
       tb_decoder.sv
       tb_lsu.sv
@@ -115,8 +116,9 @@ cpu-stuff/
   build/                         # ignored: ELF, images, sims, logs, waves, P&R
 ```
 
-`make unit`, `make unit-alu`, `make lint`, `make synth-alu` and `make wave-alu`
-are available for the ALU step. Future stable commands: `make isa`, `make firmware APP=loops`,
+`make unit`, `make unit-alu`, `make unit-regfile`, `make lint`, `make synth-alu`,
+`make synth-regfile`, `make wave-alu` and `make wave-regfile` are available.
+Future stable commands: `make isa`, `make firmware APP=loops`,
 `make sim APP=loops`, `make regression`, `make fpga BOARD=ulx3s`,
 `make program`, and `make load APP=hello_uart PORT=/dev/ttyUSB0`.
 Add them only when they perform their named work. Keep board-dependent commands

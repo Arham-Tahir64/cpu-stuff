@@ -4,9 +4,10 @@ Each milestone produces a reviewable artifact and an executable test. Do not
 start the pipeline before the multicycle system has a stable regression suite.
 The estimates are engineering planning estimates and include debugging.
 
-Current progress: M0 automated checks pass. M1's ALU and its independent
-testbench are implemented; the register file, immediate generator, decoder
-and LSU remain. See [the ALU walkthrough](08-alu.md) for its measured results.
+Current progress: M0 automated checks pass. M1's ALU and register file are
+implemented with independent testbenches; the immediate generator, decoder
+and LSU remain. See the [ALU](08-alu.md) and [register-file](09-register-file.md)
+walkthroughs for their contracts and verification.
 
 | Gate | Work and approximate effort | Acceptance evidence |
 | --- | --- | --- |
@@ -28,7 +29,7 @@ the original physical-FPGA requirement; simulated operation alone cannot do so.
 
 First, write module contracts and reference examples before implementation.
 Keep `tests/smoke` as the toolchain check. `rtl/core`, `rtl/files.f` and
-`tests/unit` now contain the ALU step. The remaining modules below are the
+`tests/unit` now contain the ALU and register-file steps. The remaining modules below are the
 next exercises; they are not implemented yet.
 
 1. **ALU**: explicit operation input; two 32-bit operands; 32-bit result.
@@ -62,8 +63,10 @@ The ALU commands available now:
 
 ```bash
 make unit-alu
-make lint synth-alu
+make unit-regfile
+make lint synth-alu synth-regfile
 make wave-alu
+make wave-regfile
 ```
 
 Use assertions with `$fatal` and a cycle/time limit so a broken core fails,

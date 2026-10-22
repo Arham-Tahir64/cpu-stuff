@@ -75,7 +75,7 @@ keep the current instruction's PC distinct from the already computed next PC.
 | Module | Contract |
 | --- | --- |
 | `alu.sv` | ADD/SUB, AND/OR/XOR, SLL/SRL/SRA, SLT/SLTU; shifts use only low 5 bits; 32-bit wraparound |
-| `regfile.sv` | Two combinational reads, one edge-triggered write; writes to x0 ignored; x0 reads always zero |
+| `regfile.sv` | Two combinational reads, one rising-edge write; synchronous reset overrides write; x0 reads always zero |
 | `immediate.sv` | I/S/B/U/J reconstruction and sign extension; branch/jump low zero bit inserted exactly once |
 | `decoder.sv` | Validate opcode/funct3/funct7 and shift encoding; output explicit controls and illegal flag |
 | `core.sv` | PC/instruction registers, FSM, operand/result latches, bus control, writeback, trap and trace |
@@ -90,7 +90,9 @@ keep the current instruction's PC distinct from the already computed next PC.
 Reset control state and valid bits explicitly. Either reset x1–x31 in a small
 flop-based register file for reproducible tests or deliberately treat them as
 unspecified before software writes; choose and test one policy. Baseline choice:
-synchronous reset clears all 32 registers, reasonable for 1024 register bits.
+synchronous reset clears x1–x31 while x0 is always zero. The implemented bank
+has 992 physical storage bits; see [the register-file contract](09-register-file.md)
+for same-address read/write timing and verification.
 Do not reset every BRAM word with a loop; it can prevent BRAM inference.
 
 ## Bus protocol: valid held until completion
