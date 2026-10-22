@@ -10,14 +10,18 @@ ALU_SEED ?= 0x1badf00d
 ALU_RANDOM_PAIRS ?= 10000
 REGFILE_SEED ?= 5eed1234
 REGFILE_RANDOM_CYCLES ?= 10000
+IMMEDIATE_SEED ?= 0x1a2b3c4d
+IMMEDIATE_RANDOM_CASES ?= 10000
 
 .PHONY: help setup doctor check smoke-host smoke-elf smoke-rtl smoke-synth wave manifest \
         unit unit-alu alu-vectors lint synth-alu wave-alu \
-        unit-regfile synth-regfile wave-regfile
+        unit-regfile synth-regfile wave-regfile \
+        unit-immediate immediate-vectors synth-immediate wave-immediate
 help:
 	@echo 'M0: make setup | doctor | check | wave | manifest'
 	@echo 'M1 ALU: make unit-alu | lint | synth-alu | wave-alu'
 	@echo 'M1 register file: make unit-regfile | synth-regfile | wave-regfile'
+	@echo 'M1 immediates: make unit-immediate | synth-immediate | wave-immediate'
 	@echo 'Individual checks: smoke-host | smoke-elf | smoke-rtl | smoke-synth'
 
 setup:
@@ -26,14 +30,16 @@ setup:
 doctor:
 	bash scripts/check_tools.sh
 
-check: doctor smoke-host smoke-elf smoke-rtl smoke-synth manifest lint unit synth-alu synth-regfile
+check: doctor smoke-host smoke-elf smoke-rtl smoke-synth manifest lint unit synth-alu synth-regfile synth-immediate
 
 lint:
 	verilator --lint-only -Wall --top-module alu -f rtl/files.f
 	verilator --lint-only -Wall --top-module regfile -f rtl/files.f
+	verilator --lint-only -Wall --top-module immediate -f rtl/files.f
 
-unit: unit-alu unit-regfile
+unit: unit-alu unit-regfile unit-immediate
 	python3 tests/unit/test_alu_harness.py
+	python3 tests/unit/test_immediate_harness.py
 
 alu-vectors:
 	python3 scripts/gen_alu_vectors.py --seed "$(ALU_SEED)" \
@@ -76,6 +82,38 @@ synth-regfile:
 wave-regfile: build/regfile/obj/regfile_test
 	./build/regfile/obj/regfile_test +seed=$(REGFILE_SEED) +sample +trace
 	gtkwave build/regfile/regfile.vcd
+
+build/immediate/cases.elf: tests/unit/immediate_cases.S Makefile
+	mkdir -p build/immediate
+	$(CROSS)gcc -march=rv32i -mabi=ilp32 -mno-relax -nostdlib -nostartfiles -static -no-pie \
+		-Wl,--no-relax,--build-id=none,-Ttext=0x10000,-e,_start $< -o $@
+
+build/immediate/cases.bin: build/immediate/cases.elf
+	$(CROSS)objcopy -O binary -j .text $< $@
+	$(CROSS)objdump -d -M no-aliases $< > build/immediate/cases.dis
+
+immediate-vectors: build/immediate/cases.bin
+	python3 scripts/gen_immediate_vectors.py --seed "$(IMMEDIATE_SEED)" \
+		--random-cases "$(IMMEDIATE_RANDOM_CASES)" --assembled $< --output build/immediate/vectors.txt
+
+build/immediate/obj/immediate_test: $(RTL_SOURCES) rtl/files.f tests/unit/tb_immediate.sv Makefile
+	mkdir -p build/immediate/obj
+	verilator --binary --timing --assert --trace -Wall -j 2 \
+		--top-module tb_immediate --Mdir build/immediate/obj -o immediate_test \
+		-f rtl/files.f tests/unit/tb_immediate.sv
+
+unit-immediate: immediate-vectors build/immediate/obj/immediate_test
+	./build/immediate/obj/immediate_test +vectors=build/immediate/vectors.txt
+
+synth-immediate:
+	mkdir -p build/immediate
+	yosys -Q -T -p 'read_verilog -sv $(RTL_SOURCES); hierarchy -check -top immediate; proc; select -assert-none t:$$dlatch* t:$$*ff*; synth -top immediate; check -assert; stat; write_json build/immediate/netlist.json' > build/immediate/yosys.log
+	test -s build/immediate/netlist.json
+	@echo 'PASS immediate synthesis; no latches or flip-flops (build/immediate/yosys.log)'
+
+wave-immediate: immediate-vectors build/immediate/obj/immediate_test
+	./build/immediate/obj/immediate_test +vectors=build/immediate/vectors.txt +trace +limit=256
+	gtkwave build/immediate/immediate.vcd
 
 smoke-host:
 	cmake -S tests/smoke/host -B build/host -G Ninja

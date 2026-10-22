@@ -76,7 +76,7 @@ keep the current instruction's PC distinct from the already computed next PC.
 | --- | --- |
 | `alu.sv` | ADD/SUB, AND/OR/XOR, SLL/SRL/SRA, SLT/SLTU; shifts use only low 5 bits; 32-bit wraparound |
 | `regfile.sv` | Two combinational reads, one rising-edge write; synchronous reset overrides write; x0 reads always zero |
-| `immediate.sv` | I/S/B/U/J reconstruction and sign extension; branch/jump low zero bit inserted exactly once |
+| `immediate.sv` | I/S/B/U/J reconstruction and sign extension; B/J byte offsets include the low zero; NONE returns zero |
 | `decoder.sv` | Validate opcode/funct3/funct7 and shift encoding; output explicit controls and illegal flag |
 | `core.sv` | PC/instruction registers, FSM, operand/result latches, bus control, writeback, trap and trace |
 | `lsu.sv` | Alignment, store masks and lane placement, load extraction and sign/zero extension |
@@ -93,6 +93,8 @@ unspecified before software writes; choose and test one policy. Baseline choice:
 synchronous reset clears x1–x31 while x0 is always zero. The implemented bank
 has 992 physical storage bits; see [the register-file contract](09-register-file.md)
 for same-address read/write timing and verification.
+The implemented [immediate generator](10-immediate-generator.md) takes an explicit
+format selector; legality and target alignment remain decoder/core responsibilities.
 Do not reset every BRAM word with a loop; it can prevent BRAM inference.
 
 ## Bus protocol: valid held until completion

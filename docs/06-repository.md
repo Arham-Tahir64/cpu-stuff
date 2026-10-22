@@ -1,7 +1,8 @@
 # Proposed complete repository structure
 
 M0 tool checks, documents, M1's ALU/package/vector generator/testbench, and the
-register file/testbench are implemented. The tree below is the target organization as milestones are
+register file/testbench and immediate-generator/assembler/vector tests are
+implemented. The tree below is the target organization as milestones are
 completed, not a list of files claimed to exist today. Use `git ls-files` for
 the actual tracked contents.
 
@@ -30,13 +31,14 @@ cpu-stuff/
     environment-verified.md
     08-alu.md                    # implemented: ALU contract, walkthrough/results
     09-register-file.md           # implemented: register-file contract and tests
+    10-immediate-generator.md     # implemented: immediate mapping and tests
     decisions/                   # later: rationale for architecture changes
   rtl/
     core/
-      rv32_pkg.sv                # implemented: shared ALU control constants
+      rv32_pkg.sv                # implemented: shared ALU/immediate control enums
       alu.sv                     # implemented
       regfile.sv                 # implemented
-      immediate.sv
+      immediate.sv               # implemented
       decoder.sv
       lsu.sv
       core.sv
@@ -56,7 +58,9 @@ cpu-stuff/
       tb_alu.sv                  # implemented
       test_alu_harness.py         # implemented: assertion/reader failure checks
       tb_regfile.sv              # implemented
-      tb_immediate.sv
+      tb_immediate.sv            # implemented
+      immediate_cases.S          # implemented: GNU assembler oracle
+      test_immediate_harness.py  # implemented: checker failure-path tests
       tb_decoder.sv
       tb_lsu.sv
       tb_uart.sv
@@ -96,6 +100,7 @@ cpu-stuff/
     check_elf.py                 # implemented: controlled M0 probe check only
     tool_manifest.sh             # implemented
     gen_alu_vectors.py           # implemented: independent Python oracle
+    gen_immediate_vectors.py     # implemented: encoder oracle + assembled words
     install_fpga_tools.sh        # implemented: optional pinned installer
     elf2mem.py                   # M4: validated PT_LOAD conversion
     load_uart.py                 # M5: validated ELF -> boot protocol
@@ -118,6 +123,8 @@ cpu-stuff/
 
 `make unit`, `make unit-alu`, `make unit-regfile`, `make lint`, `make synth-alu`,
 `make synth-regfile`, `make wave-alu` and `make wave-regfile` are available.
+The immediate step adds `make unit-immediate`, `make synth-immediate` and
+`make wave-immediate`.
 Future stable commands: `make isa`, `make firmware APP=loops`,
 `make sim APP=loops`, `make regression`, `make fpga BOARD=ulx3s`,
 `make program`, and `make load APP=hello_uart PORT=/dev/ttyUSB0`.

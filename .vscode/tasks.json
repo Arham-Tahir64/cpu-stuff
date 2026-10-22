@@ -6,6 +6,8 @@
     {"label": "M1: inspect ALU waveform", "type": "shell", "command": "make wave-alu", "problemMatcher": []},
     {"label": "M1: test register file", "type": "shell", "command": "make unit-regfile", "group": "test", "problemMatcher": ["$gcc"]},
     {"label": "M1: inspect register-file waveform", "type": "shell", "command": "make wave-regfile", "problemMatcher": []},
+    {"label": "M1: test immediates", "type": "shell", "command": "make unit-immediate", "group": "test", "problemMatcher": ["$gcc"]},
+    {"label": "M1: inspect immediate waveform", "type": "shell", "command": "make wave-immediate", "problemMatcher": []},
     {"label": "M0: inspect waveform", "type": "shell", "command": "make wave", "problemMatcher": []},
     {"label": "M0: compile RV32I ELF", "type": "shell", "command": "make smoke-elf", "group": "build", "problemMatcher": ["$gcc"]}
   ]
