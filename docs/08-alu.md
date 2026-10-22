@@ -162,5 +162,5 @@ On Ubuntu 24.04 / Verilator 5.020 / Yosys 0.33:
 
 The complete regression, harness and waveform checks are recorded in the
 change's validation results. No FPGA place/route, timing or physical execution
-is claimed. Next implement the **32 x 32 register file** with two read ports,
-one clocked write port, reset behavior, and x0 permanently zero.
+is claimed. The following [register-file step](09-register-file.md) is now
+implemented and separately tested. The next module is the immediate generator.
