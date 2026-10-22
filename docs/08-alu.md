@@ -63,7 +63,8 @@ of this module yet.
 
 1. `rv32_pkg.sv` names the ten controls. `rtl/files.f` lists the package first,
    then the ALU, so both Verilator and Yosys see declarations before their use.
-   Constants keep the interface simple for the tested Yosys 0.33 frontend.
+   The shared controls are now named enum members, accepted by Yosys 0.33;
+   module ports remain bit vectors to allow testing unsupported control values.
 2. `always_comb` describes combinational logic. Defaults assign both outputs
    for every selector value. Each legal case overrides the result; the default
    case marks an unsupported selector. There is no path retaining an old value.
@@ -163,4 +164,5 @@ On Ubuntu 24.04 / Verilator 5.020 / Yosys 0.33:
 The complete regression, harness and waveform checks are recorded in the
 change's validation results. No FPGA place/route, timing or physical execution
 is claimed. The following [register-file step](09-register-file.md) is now
-implemented and separately tested. The next module is the immediate generator.
+implemented and separately tested, as is the
+[immediate generator](10-immediate-generator.md). The next module is the decoder.

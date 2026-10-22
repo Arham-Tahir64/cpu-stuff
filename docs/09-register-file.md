@@ -157,6 +157,6 @@ Verified on 2026-10-22 with Ubuntu 24.04, Verilator 5.020 and Yosys 0.33:
 The local combined regression log is `build/regfile/check.log`. FPGA
 place/route, timing and physical execution remain future milestones.
 
-The next independent module is the **immediate generator** for I/S/B/U/J
-instruction formats. M1 remains in progress until that, the decoder and LSU
-are independently verified as well.
+The following [immediate-generator step](10-immediate-generator.md) is now
+implemented and independently tested. The decoder and LSU remain before M1
+is complete.
