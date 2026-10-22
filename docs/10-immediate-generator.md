@@ -3,7 +3,8 @@
 `rtl/core/immediate.sv` reconstructs the immediate operand from a 32-bit
 instruction and a format chosen by the future decoder. It is combinational:
 no clock, reset or stored state. The ALU, register file and immediate generator
-are now separate tested modules; the decoder and load/store unit remain in M1.
+are now separate tested modules. The [decoder](11-instruction-decoder.md) is
+also implemented; the load/store unit remains in M1.
 
 The bit layouts follow the [RV32I base formats and immediate variants](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html#_immediate_encoding_variants).
 Our selector values and invalid-control output are internal interface choices.
@@ -178,6 +179,5 @@ RISC-V GCC 13.2.0/binutils 2.42:
 
 The local combined regression log is `build/immediate/check.log`.
 
-Next implement the **instruction decoder**: validate full RV32I encodings and
-generate ALU/operand/immediate, branch, memory and writeback controls, with safe
-defaults for illegal instructions.
+The following [decoder step](11-instruction-decoder.md) now validates full RV32I
+encodings and generates safe datapath controls. The next module is the LSU.

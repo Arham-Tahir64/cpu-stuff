@@ -3,7 +3,7 @@
 Design your own RV32I CPU in SystemVerilog, execute bare-metal C programs in
 Verilator, and later run the same system on an FPGA. No existing CPU IP is used.
 
-**Current stage: M1 in progress; ALU, register file and immediate generator are tested.**
+**Current stage: M1 in progress; ALU, register file, immediate generator and decoder are tested.**
 The environment milestone is complete. The repository now contains the first
 CPU datapath blocks, tool checks, a tiny bare-metal compiler probe, and the
 design/verification plan. A complete CPU is still to come. The RTL counter in
@@ -43,9 +43,11 @@ make check                       # environment + all implemented datapath checks
 make unit-alu                    # focused ALU regression
 make unit-regfile                # focused register-file regression
 make unit-immediate              # I/S/B/U/J extraction and sign extension
+make unit-decoder                # legal encodings, safe controls and rejected encodings
 make wave-alu                    # inspect a short ALU waveform in GTKWave
 make wave-regfile                # inspect clocked register writes and reset
 make wave-immediate              # inspect instruction fields and immediates
+make wave-decoder                # inspect instruction-to-control mapping
 make wave                        # opens the generated VCD in GTKWave, requires a display
 code .                           # choose Reopen Folder in WSL if necessary
 ```
@@ -102,6 +104,7 @@ test equipment. See [board tradeoffs](docs/04-fpga.md). No purchase is required 
 9. [ALU implementation walkthrough and verified results](docs/08-alu.md)
 10. [Register file, write timing and verification](docs/09-register-file.md)
 11. [Immediate extraction, bit mapping and verification](docs/10-immediate-generator.md)
+12. [Instruction legality and decoder controls](docs/11-instruction-decoder.md)
 
 ## Build targets available now
 
@@ -111,9 +114,10 @@ test equipment. See [board tradeoffs](docs/04-fpga.md). No purchase is required 
 | `make doctor` | Print required tool versions, Python imports and optional FPGA-tool status |
 | `make check` | Run environment checks and all implemented datapath lint, unit tests and synthesis |
 | `make unit-alu` | Check 168,728 ALU vectors using the default seed and random-pair count |
-| `make unit` | Run ALU, register-file, immediate and vector-harness tests |
+| `make unit` | Run every implemented datapath and vector-harness test |
 | `make unit-regfile` | Check register timing/reset/x0, all read-address pairs, and 10,000 random cycles |
 | `make unit-immediate` | Check 157,354 immediate vectors, including 23 GNU-assembled words |
+| `make unit-decoder` | Check 215,000 control vectors, including all 40 instruction types |
 | `make lint` | Lint all implemented datapath modules with warnings treated as failures |
 | `make synth-alu` | Synthesize the ALU and reject inferred latches/flip-flops |
 | `make wave-alu` | View a 256-vector ALU sample in GTKWave |
@@ -121,6 +125,8 @@ test equipment. See [board tradeoffs](docs/04-fpga.md). No purchase is required 
 | `make wave-regfile` | View a limited register-file waveform in GTKWave |
 | `make synth-immediate` | Synthesize the immediate generator and reject inferred state |
 | `make wave-immediate` | View a 256-vector immediate sample in GTKWave |
+| `make synth-decoder` | Synthesize the decoder and reject inferred state |
+| `make wave-decoder` | View a 256-vector decoder sample in GTKWave |
 | `make smoke-host` | Build and run native C through CMake / Ninja |
 | `make smoke-elf` | Build, disassemble and validate a bare-metal RV32I ELF; does not execute it |
 | `make smoke-rtl` | Simulate a checked counter and generate `build/smoke.vcd` |

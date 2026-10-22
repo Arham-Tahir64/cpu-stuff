@@ -158,5 +158,5 @@ The local combined regression log is `build/regfile/check.log`. FPGA
 place/route, timing and physical execution remain future milestones.
 
 The following [immediate-generator step](10-immediate-generator.md) is now
-implemented and independently tested. The decoder and LSU remain before M1
-is complete.
+implemented and independently tested, as is the [decoder](11-instruction-decoder.md).
+The LSU remains before M1 is complete.

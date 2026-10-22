@@ -2,7 +2,8 @@
 
 M0 tool checks, documents, M1's ALU/package/vector generator/testbench, and the
 register file/testbench and immediate-generator/assembler/vector tests are
-implemented. The tree below is the target organization as milestones are
+implemented, together with the RV32I decoder and its mask/match reference tests.
+The tree below is the target organization as milestones are
 completed, not a list of files claimed to exist today. Use `git ls-files` for
 the actual tracked contents.
 
@@ -32,14 +33,15 @@ cpu-stuff/
     08-alu.md                    # implemented: ALU contract, walkthrough/results
     09-register-file.md           # implemented: register-file contract and tests
     10-immediate-generator.md     # implemented: immediate mapping and tests
+    11-instruction-decoder.md     # implemented: legality, controls and tests
     decisions/                   # later: rationale for architecture changes
   rtl/
     core/
-      rv32_pkg.sv                # implemented: shared ALU/immediate control enums
+      rv32_pkg.sv                # implemented: shared datapath/control enums
       alu.sv                     # implemented
       regfile.sv                 # implemented
       immediate.sv               # implemented
-      decoder.sv
+      decoder.sv                 # implemented
       lsu.sv
       core.sv
     soc/
@@ -61,13 +63,16 @@ cpu-stuff/
       tb_immediate.sv            # implemented
       immediate_cases.S          # implemented: GNU assembler oracle
       test_immediate_harness.py  # implemented: checker failure-path tests
-      tb_decoder.sv
+      tb_decoder.sv              # implemented
+      decoder_cases.S            # implemented: all 40 types through GNU tools
+      test_decoder_harness.py    # implemented: checker failure-path tests
       tb_lsu.sv
       tb_uart.sv
     isa/                         # handwritten directed RV32I assembly
     programs/                    # assembly integration programs
     loader/                      # synthetic/malformed ELF and serial packets
-    reference/                   # independent model and comparison tests
+    reference/
+      decoder_model.py           # implemented: independent encoding/control table
     fixtures/
   sim/
     tb_core.sv
@@ -101,6 +106,7 @@ cpu-stuff/
     tool_manifest.sh             # implemented
     gen_alu_vectors.py           # implemented: independent Python oracle
     gen_immediate_vectors.py     # implemented: encoder oracle + assembled words
+    gen_decoder_vectors.py       # implemented: control-field sweeps and random tests
     install_fpga_tools.sh        # implemented: optional pinned installer
     elf2mem.py                   # M4: validated PT_LOAD conversion
     load_uart.py                 # M5: validated ELF -> boot protocol
@@ -125,6 +131,7 @@ cpu-stuff/
 `make synth-regfile`, `make wave-alu` and `make wave-regfile` are available.
 The immediate step adds `make unit-immediate`, `make synth-immediate` and
 `make wave-immediate`.
+The decoder adds `make unit-decoder`, `make synth-decoder` and `make wave-decoder`.
 Future stable commands: `make isa`, `make firmware APP=loops`,
 `make sim APP=loops`, `make regression`, `make fpga BOARD=ulx3s`,
 `make program`, and `make load APP=hello_uart PORT=/dev/ttyUSB0`.

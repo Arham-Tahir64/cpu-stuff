@@ -26,4 +26,14 @@ package rv32_pkg;
         IMM_U    = 3'd4,
         IMM_J    = 3'd5
     } imm_format_t;
+
+    typedef enum logic [1:0] { ALU_A_RS1 = 2'd0, ALU_A_PC = 2'd1, ALU_A_ZERO = 2'd2 } alu_a_sel_t;
+    typedef enum logic [1:0] { WB_ALU = 2'd0, WB_LOAD = 2'd1, WB_PC4 = 2'd2 } wb_sel_t;
+    typedef enum logic [1:0] { MEM_BYTE = 2'd0, MEM_HALF = 2'd1, MEM_WORD = 2'd2 } mem_size_t;
+    typedef enum logic [2:0] {
+        BR_NONE = 3'd0, BR_EQ = 3'd1, BR_NE = 3'd2, BR_LT = 3'd3,
+        BR_GE = 3'd4, BR_LTU = 3'd5, BR_GEU = 3'd6
+    } branch_t;
+    typedef enum logic [1:0] { JUMP_NONE = 2'd0, JUMP_JAL = 2'd1, JUMP_JALR = 2'd2 } jump_t;
+    typedef enum logic [1:0] { SYS_NONE = 2'd0, SYS_ECALL = 2'd1, SYS_EBREAK = 2'd2 } system_t;
 endpackage
