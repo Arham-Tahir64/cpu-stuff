@@ -4,6 +4,10 @@ Each milestone produces a reviewable artifact and an executable test. Do not
 start the pipeline before the multicycle system has a stable regression suite.
 The estimates are engineering planning estimates and include debugging.
 
+Current progress: M0 automated checks pass. M1's ALU and its independent
+testbench are implemented; the register file, immediate generator, decoder
+and LSU remain. See [the ALU walkthrough](08-alu.md) for its measured results.
+
 | Gate | Work and approximate effort | Acceptance evidence |
 | --- | --- | --- |
 | M0: environment | WSL, compiler, simulator, viewer, build scripts; 3–8 h | `make check` exits zero; inspect counter waveform; ELF32 RV32I linked; tool versions saved. No CPU execution claimed. |
@@ -23,8 +27,9 @@ the original physical-FPGA requirement; simulated operation alone cannot do so.
 ## Begin M1 after M0 passes
 
 First, write module contracts and reference examples before implementation.
-Keep `tests/smoke` as the toolchain check. Add `rtl/core` and `tests/unit` when
-you start the CPU; the names below are the next exercise, not existing modules.
+Keep `tests/smoke` as the toolchain check. `rtl/core`, `rtl/files.f` and
+`tests/unit` now contain the ALU step. The remaining modules below are the
+next exercises; they are not implemented yet.
 
 1. **ALU**: explicit operation input; two 32-bit operands; 32-bit result.
    Implement ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT and SLTU.
@@ -53,13 +58,12 @@ you start the CPU; the names below are the next exercise, not existing modules.
 6. **LSU and `tb_lsu.sv`**: test each byte lane, both aligned halfword positions,
    signed loads, preserved neighboring bytes, misaligned traps and bus errors.
 
-Suggested commands to add at M1:
+The ALU commands available now:
 
 ```bash
-verilator --binary --timing --assert --trace -Wall \
-  --top-module tb_alu --Mdir build/alu \
-  rtl/core/alu.sv tests/unit/tb_alu.sv
-./build/alu/Vtb_alu
+make unit-alu
+make lint synth-alu
+make wave-alu
 ```
 
 Use assertions with `$fatal` and a cycle/time limit so a broken core fails,

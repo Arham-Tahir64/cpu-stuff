@@ -5,10 +5,15 @@ SHELL := /bin/bash
 CROSS ?= riscv64-unknown-elf-
 RVFLAGS := -march=rv32i -mabi=ilp32 -O1 -g -ffreestanding -fno-builtin \
            -fno-pic -fno-pie -fno-stack-protector -msmall-data-limit=0 -mno-relax
+RTL_SOURCES := $(shell cat rtl/files.f)
+ALU_SEED ?= 0x1badf00d
+ALU_RANDOM_PAIRS ?= 10000
 
-.PHONY: help setup doctor check smoke-host smoke-elf smoke-rtl smoke-synth wave manifest
+.PHONY: help setup doctor check smoke-host smoke-elf smoke-rtl smoke-synth wave manifest \
+        unit unit-alu alu-vectors lint synth-alu wave-alu
 help:
 	@echo 'M0: make setup | doctor | check | wave | manifest'
+	@echo 'M1 ALU: make unit-alu | lint | synth-alu | wave-alu'
 	@echo 'Individual checks: smoke-host | smoke-elf | smoke-rtl | smoke-synth'
 
 setup:
@@ -17,7 +22,36 @@ setup:
 doctor:
 	bash scripts/check_tools.sh
 
-check: doctor smoke-host smoke-elf smoke-rtl smoke-synth manifest
+check: doctor smoke-host smoke-elf smoke-rtl smoke-synth manifest lint unit synth-alu
+
+lint:
+	verilator --lint-only -Wall --top-module alu -f rtl/files.f
+
+unit: unit-alu
+	python3 tests/unit/test_alu_harness.py
+
+alu-vectors:
+	python3 scripts/gen_alu_vectors.py --seed "$(ALU_SEED)" \
+		--random-pairs "$(ALU_RANDOM_PAIRS)" --output build/alu/vectors.txt
+
+build/alu/obj/alu_test: $(RTL_SOURCES) rtl/files.f tests/unit/tb_alu.sv Makefile
+	mkdir -p build/alu/obj
+	verilator --binary --timing --assert --trace -Wall -j 2 \
+		--top-module tb_alu --Mdir build/alu/obj -o alu_test \
+		-f rtl/files.f tests/unit/tb_alu.sv
+
+unit-alu: alu-vectors build/alu/obj/alu_test
+	./build/alu/obj/alu_test +vectors=build/alu/vectors.txt
+
+synth-alu:
+	mkdir -p build/alu
+	yosys -Q -T -p 'read_verilog -sv $(RTL_SOURCES); hierarchy -check -top alu; proc; select -assert-none t:$$dlatch* t:$$*ff*; synth -top alu; check -assert; stat; write_json build/alu/netlist.json' > build/alu/yosys.log
+	test -s build/alu/netlist.json
+	@echo 'PASS ALU synthesis; no inferred latches or flip-flops (build/alu/yosys.log)'
+
+wave-alu: alu-vectors build/alu/obj/alu_test
+	./build/alu/obj/alu_test +vectors=build/alu/vectors.txt +trace +limit=256
+	gtkwave build/alu/alu.vcd
 
 smoke-host:
 	cmake -S tests/smoke/host -B build/host -G Ninja
