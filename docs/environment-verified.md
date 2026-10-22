@@ -1,6 +1,8 @@
 # Environment verification record
 
 Verified on **2026-10-22** in the existing `Ubuntu` WSL2 distribution.
+This is the M0 snapshot. The later [ALU record](08-alu.md) describes M1's first
+implemented CPU module; the deferred list below records the state at M0.
 The Windows checkout is `C:\Users\Arham\Documents\research\cpu-stuff`;
 Linux builds ran at `/mnt/c/Users/Arham/Documents/research/cpu-stuff` as the
 normal Linux user. Dependencies were installed into Ubuntu with apt.

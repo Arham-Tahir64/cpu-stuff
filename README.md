@@ -3,10 +3,11 @@
 Design your own RV32I CPU in SystemVerilog, execute bare-metal C programs in
 Verilator, and later run the same system on an FPGA. No existing CPU IP is used.
 
-**Current stage: M0, development environment.** This repository contains working
-tool checks, a tiny bare-metal compiler probe, and the design/verification plan.
-It does **not** contain a CPU yet. The RTL counter in `tests/smoke` checks the
-simulator and synthesis tools; it is not a processor or an instruction emulator.
+**Current stage: M1 started; the ALU is implemented and independently tested.**
+The environment milestone is complete. The repository now contains the first
+CPU datapath block, tool checks, a tiny bare-metal compiler probe, and the
+design/verification plan. A complete CPU is still to come. The RTL counter in
+`tests/smoke` remains an environment check, separate from `rtl/core/alu.sv`.
 
 ## Start with software only
 
@@ -38,7 +39,9 @@ In Ubuntu, using the checkout created for this session:
 cd /mnt/c/Users/Arham/Documents/research/cpu-stuff
 bash scripts/bootstrap_ubuntu.sh   # repeatable; sudo may ask for your Linux password
 make doctor
-make check                       # host C/CMake, real ELF, Verilator assertions, Yosys
+make check                       # environment + ALU lint, simulation and synthesis
+make unit-alu                    # focused ALU regression
+make wave-alu                    # inspect a short ALU waveform in GTKWave
 make wave                        # opens the generated VCD in GTKWave, requires a display
 code .                           # choose Reopen Folder in WSL if necessary
 ```
@@ -92,6 +95,7 @@ test equipment. See [board tradeoffs](docs/04-fpga.md). No purchase is required 
 6. [Verification strategy and common mistakes](docs/05-verification.md)
 7. [Proposed complete repository layout](docs/06-repository.md)
 8. [Primary specifications and study material](docs/07-references.md)
+9. [ALU implementation walkthrough and verified results](docs/08-alu.md)
 
 ## Build targets available now
 
@@ -99,7 +103,12 @@ test equipment. See [board tradeoffs](docs/04-fpga.md). No purchase is required 
 | --- | --- |
 | `make setup` | Install Ubuntu dependencies |
 | `make doctor` | Print required tool versions, Python imports and optional FPGA-tool status |
-| `make check` | Run all automated M0 checks |
+| `make check` | Run environment checks, ALU lint/unit tests, harness failure tests and synthesis |
+| `make unit-alu` | Check 168,728 ALU vectors using the default seed and random-pair count |
+| `make unit` | Run ALU tests and verify that invalid test inputs/wrong expectations fail |
+| `make lint` | Lint the synthesizable ALU with warnings treated as failures |
+| `make synth-alu` | Synthesize the ALU and reject inferred latches/flip-flops |
+| `make wave-alu` | View a 256-vector ALU sample in GTKWave |
 | `make smoke-host` | Build and run native C through CMake / Ninja |
 | `make smoke-elf` | Build, disassemble and validate a bare-metal RV32I ELF; does not execute it |
 | `make smoke-rtl` | Simulate a checked counter and generate `build/smoke.vcd` |
@@ -107,6 +116,6 @@ test equipment. See [board tradeoffs](docs/04-fpga.md). No purchase is required 
 | `make wave` | Open GTKWave |
 | `make manifest` | Record Ubuntu package/tool versions in `build/tool-versions.txt` |
 
-CPU unit-test, CPU simulation, ELF loading and FPGA deployment targets will be
-added at their milestones, after their tests and interfaces are defined. A
+More CPU unit tests, CPU simulation, ELF loading and FPGA deployment targets
+will be added at their milestones, after their tests and interfaces are defined. A
 command should never report success for an unimplemented project stage.

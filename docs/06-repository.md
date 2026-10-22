@@ -1,8 +1,9 @@
 # Proposed complete repository structure
 
-Only M0 tool checks and the documents are implemented initially. The tree below
-is the target organization as milestones are completed, not a list of files
-claimed to exist today. Use `git ls-files` for the actual tracked contents.
+M0 tool checks, documents, and M1's ALU/package/vector generator/testbench are
+implemented. The tree below is the target organization as milestones are
+completed, not a list of files claimed to exist today. Use `git ls-files` for
+the actual tracked contents.
 
 ```text
 cpu-stuff/
@@ -11,7 +12,7 @@ cpu-stuff/
   .gitattributes                 # LF endings
   .gitignore
   .github/workflows/
-    m0.yml                       # implemented: environment CI
+    m0.yml                       # implemented: environment + ALU CI
     regression.yml               # later: CPU and loader regression
   .vscode/
     extensions.json
@@ -27,11 +28,12 @@ cpu-stuff/
     06-repository.md
     07-references.md
     environment-verified.md
+    08-alu.md                    # implemented: ALU contract, walkthrough/results
     decisions/                   # later: rationale for architecture changes
   rtl/
     core/
-      rv32_pkg.sv                # constants/types; explicit source ordering
-      alu.sv
+      rv32_pkg.sv                # implemented: shared ALU control constants
+      alu.sv                     # implemented
       regfile.sv
       immediate.sv
       decoder.sv
@@ -44,13 +46,14 @@ cpu-stuff/
       uart.sv
       gpio.sv
       soc.sv
-    files.f
+    files.f                      # implemented: package before ALU
   tests/
     smoke/                       # implemented: M0 probes, not CPU modules
       host/{CMakeLists.txt,main.c}
       {tool_probe.sv,tb_tool_probe.sv,start.S,probe.c,probe.ld}
     unit/
-      tb_alu.sv
+      tb_alu.sv                  # implemented
+      test_alu_harness.py         # implemented: assertion/reader failure checks
       tb_regfile.sv
       tb_immediate.sv
       tb_decoder.sv
@@ -91,6 +94,7 @@ cpu-stuff/
     check_tools.sh               # implemented
     check_elf.py                 # implemented: controlled M0 probe check only
     tool_manifest.sh             # implemented
+    gen_alu_vectors.py           # implemented: independent Python oracle
     install_fpga_tools.sh        # implemented: optional pinned installer
     elf2mem.py                   # M4: validated PT_LOAD conversion
     load_uart.py                 # M5: validated ELF -> boot protocol
@@ -111,7 +115,8 @@ cpu-stuff/
   build/                         # ignored: ELF, images, sims, logs, waves, P&R
 ```
 
-Future stable commands: `make unit`, `make isa`, `make firmware APP=loops`,
+`make unit`, `make unit-alu`, `make lint`, `make synth-alu` and `make wave-alu`
+are available for the ALU step. Future stable commands: `make isa`, `make firmware APP=loops`,
 `make sim APP=loops`, `make regression`, `make fpga BOARD=ulx3s`,
 `make program`, and `make load APP=hello_uart PORT=/dev/ttyUSB0`.
 Add them only when they perform their named work. Keep board-dependent commands
